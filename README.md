@@ -1,2 +1,4 @@
-# advent-of-code
-My submissions for 2016 advent of code.
+These are my (Luke's) submissions for Advent of Code 2016.
+
+Follow along here: http://adventofcode.com/
+
