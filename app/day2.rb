@@ -34,7 +34,54 @@
 # Your puzzle input is the instructions from the document you found at the front desk. What is the bathroom code?
 
 class Day2
-  def self.bathroom_code(input)
-    5
+  def self.bathroom_code(rows)
+    remaining_codes(5, rows.split("\n")).join("")
   end
+
+  # given a starting number and a set of rows, this will return all the remaining numbers that would be called
+  def self.remaining_codes(starting_number, remaining_rows)
+    
+    if remaining_rows.empty?
+      []
+    else
+      this_row = remaining_rows.shift
+      this_digit = digit_for_row(starting_number, this_row.chars)
+      
+      [this_digit] + remaining_codes(this_digit, remaining_rows)
+    end
+  end
+
+  # given a starting number and a set of instructions (array of directions), return 
+  # the final number
+  # this works recursively -- that is, if you start with [5, "UL"], then that could apply the first and then return [2, "L"], etc
+  def self.digit_for_row(starting_number, instructions)
+    number = starting_number
+    instructions.each do |instruction|
+      number = apply_move(number, instruction)
+    end
+    number
+  end
+
+  # takes a number and moves in a single direction
+  def self.apply_move(starting_number, instruction)
+    {
+      1 => { 'U' => 1, 'L' => 1, 'R' => 2, 'D' => 4 },
+      2 => { 'U' => 2, 'L' => 1, 'R' => 3, 'D' => 5 },
+      3 => { 'U' => 3, 'L' => 2, 'R' => 3, 'D' => 6 },
+      4 => { 'U' => 1, 'L' => 4, 'R' => 5, 'D' => 7 },
+      5 => { 'U' => 2, 'L' => 4, 'R' => 6, 'D' => 8 },
+      6 => { 'U' => 3, 'L' => 5, 'R' => 6, 'D' => 9 },
+      7 => { 'U' => 4, 'L' => 7, 'R' => 8, 'D' => 7 },
+      8 => { 'U' => 5, 'L' => 7, 'R' => 9, 'D' => 8 },
+      9 => { 'U' => 6, 'L' => 8, 'R' => 9, 'D' => 9 },
+    }[starting_number][instruction]
+  end
+
+  def self.main
+    input = File.read("inputs/day2.txt")
+    puts "Part 1 : #{Day2.bathroom_code(input)}"
+  end
+
 end
+
+Day2.main
