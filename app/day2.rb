@@ -131,6 +131,7 @@ class Day2
   def self.main
     input = File.read("inputs/day2.txt")
     puts "Part 1 : #{Day2.bathroom_code(input, :simple_keypad_apply_move)}"
+    puts "Part 2 : #{Day2.bathroom_code(input, :complex_keypad_apply_move)}"
   end
 
 end
