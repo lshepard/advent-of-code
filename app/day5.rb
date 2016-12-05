@@ -17,10 +17,10 @@ class Day5
     password = ''
     i = 0
     while password.length < 8
-      str = input.to_s + i.to_s
-      hash = Digest::MD5.hexdigest(str)
+      hash = Digest::MD5.hexdigest(input.to_s + i.to_s)
       if hash[0..4] == "00000"
         password += hash[5]
+        puts password
       end
       i += 1
     end
@@ -37,9 +37,9 @@ class Day5
       new_character = hash[6]
       if hash[0..4] == "00000" &&
           /[0-7]/.match(location) &&  # discard invalid locations
-          password[location] == " "   # only take the first valid one
-        password.insert(location.to_i, new_character)
-        password.slice!(location + 1)
+          password[location.to_i] == " "   # only take the first valid one
+          password.insert(location.to_i, new_character)
+          password.slice!(location.to_i + 1)
       end
       index += 1
     end
@@ -48,7 +48,7 @@ class Day5
 
   def self.main
     puts "Part 1: #{Day5.part1_password('wtnhxymk')}"
-    puts "Part 2: #{part2_password('wtnhxymk')}"
+    puts "Part 2: #{Day5.part2_password('wtnhxymk')}"
   end
 
 end
