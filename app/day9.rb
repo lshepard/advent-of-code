@@ -37,16 +37,9 @@ class Day9
   # get its decompressed length.
   def self.decompressed_length(input)
     if (m = /\((\d+)x(\d+)\)/.match(input))
-
       count = m[1].to_i
       multiplier = m[2].to_i
       
-      # length up to the first match
-      
-      # hash[input.slice(0, m.begin(0))] = 1
-      # hash[input.slice(m.end(0), count)] = multiplier
-      # hash[input.slice(m.end(0) + count, input.length)] = 1
-
       m.begin(0) + 
         multiplier * decompressed_length(input.slice(m.end(0), count)) +
         decompressed_length(input.slice(m.end(0) + count, input.length))
