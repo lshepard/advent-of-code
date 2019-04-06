@@ -3,12 +3,11 @@ import cProfile
 import re
 import sys
 import tqdm
-#from blist import blist
-import numpy as np
+from blist import blist
 
 def marbles(num_players, num_marbles, display=False):
 
-    board = [0]
+    board = blist([0])
     current = 0
     scores = dict((i,0) for i in range(num_players)) # everyone starts at 0
     current_player = 0
@@ -42,7 +41,10 @@ def marbles(num_players, num_marbles, display=False):
             # marble into the circle between the marbles that are 1 and 2
             # marbles clockwise of the current marble
             current = (current+2) % current_length
+            
+            # this answer says this is more performant https://stackoverflow.com/questions/14895599/insert-an-element-at-specific-index-in-a-list-and-return-updated-list
             board.insert(current, i)
+            #board[current:current] = [i] 
             current_length += 1
 
         current_player = (current_player + 1) % num_players
@@ -50,4 +52,5 @@ def marbles(num_players, num_marbles, display=False):
     return max(scores.values())
 
 print(marbles(9, 25, display=True))
-cProfile.run("marbles(473, 709040, display=False)")
+print(marbles(473, 7090400, display=False))
+#print cProfile.run("marbles(473, 7090400, display=False)")
