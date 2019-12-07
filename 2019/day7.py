@@ -6,9 +6,9 @@ def try_phase_sequence(program, phase_sequence):
     v = 0
     
     for phase_setting in phase_sequence:
-#        print(f"Trying phase {phase_setting}")
+        print(f"Trying phase {phase_setting}")
         v = IntCodeComputer(program, inputs=[v, phase_setting]).compute().output()
-#        print(f"output is {v}")
+        print(f"output is {v}")
 
     return v
 
@@ -19,7 +19,7 @@ def max_phase_sequence(program):
 
 #    phase_sequences = [np.base_repr(i, base=5) for i in range(3125)]
     print(phase_sequences())
-    results = {s: try_phase_sequence(program, list(s)) for s in phase_sequences()}
+    results = {s: int(try_phase_sequence(program, list(s))) for s in phase_sequences()}
 
     print(results)
     maxsequence = max(results, key=results.get)
@@ -34,9 +34,7 @@ def run_tests():
     
     assert(max_phase_sequence("3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0") == ("10432", "65210"))
 
-print(max_phase_sequence("3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0"))
 #run_tests()
-quit()
 print("Part 1:")
 r = open("day7.input").read()
 print(max_phase_sequence(r))

@@ -52,7 +52,7 @@ class IntCodeComputer():
     def compute(self):
         i = 0
         while True:
-            #print(self.memory)
+            print(self.memory)
             i = self.process_instruction(i)
             if i is None:
                 break
@@ -96,7 +96,7 @@ class IntCodeComputer():
 
         elif opcode == 3:
             inp = self.next_input()
-            #print(f"Next input: {inp}")
+            print(f"Next input: {inp}")
             self.write_mem(self.get_parameter(i, 1, force_immediate=True), inp)
             return i+2
             
