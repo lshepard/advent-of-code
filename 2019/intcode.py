@@ -14,20 +14,19 @@ from itertools import cycle
 
 class IntCodeComputer():
 
-    def __init__(self, memory):
+    def __init__(self, memory, phase_setting):
         self.memory = [int(i) for i in memory.split(",")]
         self.i = 0
         self.done = False
-        self.input = []
+        self.input = None
         self.outputs = []
+        self.phase_setting = phase_setting
 
     def __repr__(self):
         return f"i:{self.i} done:{self.done} input:{self.input} outputs:{self.outputs} mem:{self.memory}"
-        
+    
     def add_input(self, input):
-        self.input.insert(0, input)
-        # clear output when input is adddd
-        self.outputs = []
+        self.input = input
         
     def parameter_mode(self, operation, n):
         s = str(operation)
@@ -52,7 +51,7 @@ class IntCodeComputer():
         self.memory[location] = int(value)
                 
     def add_output(self, val):
-        self.outputs.append(val)
+        self.outputs = [val]
 
     def compute(self):
         while True:
@@ -71,17 +70,26 @@ class IntCodeComputer():
             
             self.i = next_i
 
+    def isdone(self):
+        return self.done
+    
     def output(self):
         return ",".join([str(i) for i in self.outputs])
 
     def first_location(self):
         return self.memory[0]
 
-    def next_input(self):
-        if len(self.input) >= 1:
-            return self.input.pop()
+    # Basically, I want it to get the phase setting the first time,
+    # and each subsequent time to get a new input.
+    # i could have it just wait.
+    def get_input(self):
+        if self.phase_setting:
+            # one time only
+            v = self.phase_setting
+            self.phase_setting = None
         else:
-            return None
+            v = self.input
+        return v
         
     def process_instruction(self, i):
         """Process, and Returns the next instruction location"""
@@ -108,17 +116,14 @@ class IntCodeComputer():
             return i+4
 
         elif opcode == 3:
-            inp = self.next_input()
-            print(f"Next input: {inp}")
-            if inp is None:
-                return None
-            
+            inp = self.get_input()
             self.write_mem(self.get_parameter(i, 1, force_immediate=True), inp)
             return i+2
             
         elif opcode == 4:
             self.add_output(self.get_parameter(i, 1))
-            return i+2
+            self.i = i+2
+            return -1
 
         elif opcode == 5:
             if self.get_parameter(i, 1) != 0:
