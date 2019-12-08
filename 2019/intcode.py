@@ -14,15 +14,20 @@ from itertools import cycle
 
 class IntCodeComputer():
 
-    def __init__(self, memory, inputs=[], noun=None, verb=None):
+    def __init__(self, memory):
         self.memory = [int(i) for i in memory.split(",")]
-        self.input = inputs # cycle([int(i) for i in inputs]) # loop through all provided inputs
+        self.i = 0
+        self.done = False
+        self.input = []
         self.outputs = []
-        if noun is not None: 
-            self.memory[1] = noun
-        if verb is not None: 
-            self.memory[1] = verb
-           
+
+    def __repr__(self):
+        return f"i:{self.i} done:{self.done} input:{self.input} outputs:{self.outputs} mem:{self.memory}"
+        
+    def add_input(self, input):
+        self.input.insert(0, input)
+        # clear output when input is adddd
+        self.outputs = []
         
     def parameter_mode(self, operation, n):
         s = str(operation)
@@ -50,13 +55,21 @@ class IntCodeComputer():
         self.outputs.append(val)
 
     def compute(self):
-        i = 0
         while True:
-            print(self.memory)
-            i = self.process_instruction(i)
-            if i is None:
-                break
-        return self
+            next_i = self.process_instruction(self.i)
+
+            # so we can return for two reasons:
+            # first is waiting for input. in which case we return
+            # the current output and put this on pause. We'll resume later
+
+            # the other reasons is that the program is truly done
+            if next_i == -1: # sentinel meaning more input needed
+                return self.output()
+            if next_i is None:
+                self.done = True
+                return self.output()
+            
+            self.i = next_i
 
     def output(self):
         return ",".join([str(i) for i in self.outputs])
@@ -65,10 +78,10 @@ class IntCodeComputer():
         return self.memory[0]
 
     def next_input(self):
-        if len(self.input) > 1:
+        if len(self.input) >= 1:
             return self.input.pop()
         else:
-            return self.input[0]
+            return None
         
     def process_instruction(self, i):
         """Process, and Returns the next instruction location"""
@@ -97,6 +110,9 @@ class IntCodeComputer():
         elif opcode == 3:
             inp = self.next_input()
             print(f"Next input: {inp}")
+            if inp is None:
+                return None
+            
             self.write_mem(self.get_parameter(i, 1, force_immediate=True), inp)
             return i+2
             

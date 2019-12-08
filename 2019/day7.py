@@ -12,19 +12,24 @@ def try_phase_sequence(program, phase_sequence):
 
     return v
 
-def phase_sequences():
-    return ["".join([str(c) for c in l]) for l in permutations([0,1,2,3,4])]
+def phase_sequences(min, max):
+    return ["".join([str(c) for c in l]) for l in permutations(range(min,max+1))]
 
 def max_phase_sequence(program):
 
 #    phase_sequences = [np.base_repr(i, base=5) for i in range(3125)]
-    print(phase_sequences())
+    print(phase_sequences(0,4))
     results = {s: int(try_phase_sequence(program, list(s))) for s in phase_sequences()}
 
     print(results)
     maxsequence = max(results, key=results.get)
 
     return (maxsequence, results[maxsequence])
+
+def part2_max_phase_sequence(program):
+
+
+    amplifiers = [IntCodeComputer(program)
 
 def run_tests():
     assert(try_phase_sequence("3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0", "43210") == "43210")
