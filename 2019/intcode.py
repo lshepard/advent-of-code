@@ -21,10 +21,14 @@ class IntCodeComputer():
         self.input = None
         self.outputs = []
         self.phase_setting = phase_setting
+        self.relative_base = 0
 
     def __repr__(self):
         return f"i:{self.i} done:{self.done} input:{self.input} outputs:{self.outputs} mem:{self.memory}"
-    
+
+    def set_relative_base(self, b):
+        self.relative_base = b
+        
     def add_input(self, input):
         self.input = input
         
@@ -41,17 +45,42 @@ class IntCodeComputer():
         raw_value = self.memory[i + param_num]
         #print(f"i:{i} param_num:{param_num} mode:{mode} raw:{raw_value} memory:{self.memory}")
         
-        if mode != 0 or force_immediate: # immediate mode
-            return raw_value
-        else: # position mode
-            return self.memory[raw_value]
+        try:
+            if force_immediate:
 
+                if mode == 1 or mode == 0:
+                    return raw_value
+                elif mode == 2:
+                    return raw_value + self.relative_base
+                
+            else:
+            
+                if mode == 1: # immediate mode
+                    return raw_value
+                elif mode == 0: # position mode
+                    return self.memory[raw_value]
+                elif mode == 2: # relative mode
+                    return self.memory[raw_value + self.relative_base]
+        except IndexError:
+            return 0
+
+        
 
     def write_mem(self, location, value):
+        print(f"location:{location} length:{len(self.memory)}")
+
+        
+        if location >= len(self.memory):
+            print("writing more ...")
+            for i in range(len(self.memory), location+10):
+                self.memory.append(0)
+
+            print(f"location:{location} length:{len(self.memory)}")
+
         self.memory[location] = int(value)
                 
     def add_output(self, val):
-        self.outputs = [val]
+        self.outputs.append(val)
 
     def compute(self):
         while True:
@@ -95,8 +124,11 @@ class IntCodeComputer():
         """Process, and Returns the next instruction location"""
         instruction = str(self.memory[i])
         opcode = int(instruction[-2:])
-#        print(f"i:{i} opcodes:{opcodes} opcode:{opcode} outputs:{outputs}")
 
+        #print(f"i:{i} instruction:{instruction} opcode:{opcode} outputs:{self.outputs} memory:{self.memory}")
+
+        print(f"memsize: {len(self.memory)}")
+        
         # Opcode 1 adds together numbers read from two positions and stores
         # the result in a third position. The three integers immediately
         # after the opcode tell you these three positions - the first two
@@ -117,13 +149,18 @@ class IntCodeComputer():
 
         elif opcode == 3:
             inp = self.get_input()
-            self.write_mem(self.get_parameter(i, 1, force_immediate=True), inp)
+            p = self.get_parameter(i, 1, force_immediate=True)
+#            mode = self.parameter_mode(self.memory[i], 1)
+            # writing memory is a bit trick,y i need to reimplement here
+#            if mode == 2:
+#                p = p+self.relative_base
+            self.write_mem(p, inp)
             return i+2
             
         elif opcode == 4:
             self.add_output(self.get_parameter(i, 1))
-            self.i = i+2
-            return -1
+            return i+2
+#            return -1
 
         elif opcode == 5:
             if self.get_parameter(i, 1) != 0:
@@ -155,6 +192,11 @@ class IntCodeComputer():
             self.write_mem(self.get_parameter(i, 3, force_immediate=True), val)
             return i+4
 
+        elif opcode == 9:
+            self.set_relative_base(self.relative_base + self.get_parameter(i, 1))
+            
+            return i+2
+            
         elif opcode == 99:
             return None
 
