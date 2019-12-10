@@ -14,7 +14,7 @@ from itertools import cycle
 
 class IntCodeComputer():
 
-    def __init__(self, memory, phase_setting):
+    def __init__(self, memory):
         self.memory = [int(i) for i in memory.split(",")]
         self.i = 0
         self.done = False
@@ -26,6 +26,9 @@ class IntCodeComputer():
     def __repr__(self):
         return f"i:{self.i} done:{self.done} input:{self.input} outputs:{self.outputs} mem:{self.memory}"
 
+    def set_phase_setting(self, phase_setting):
+        self.phase_setting = phase_setting
+    
     def set_relative_base(self, b):
         self.relative_base = b
         
@@ -46,8 +49,8 @@ class IntCodeComputer():
         #print(f"i:{i} param_num:{param_num} mode:{mode} raw:{raw_value} memory:{self.memory}")
         
         try:
+            # TODO clean this up
             if force_immediate:
-
                 if mode == 1 or mode == 0:
                     return raw_value
                 elif mode == 2:
