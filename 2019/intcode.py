@@ -20,7 +20,7 @@ class IntCodeComputer():
         self.done = False
         self.input = None
         self.outputs = []
-        self.phase_setting = phase_setting
+        self.phase_setting = None
         self.relative_base = 0
 
     def __repr__(self):
@@ -70,7 +70,7 @@ class IntCodeComputer():
         
 
     def write_mem(self, location, value):
-        print(f"location:{location} length:{len(self.memory)}")
+#        print(f"location:{location} length:{len(self.memory)}")
 
         
         if location >= len(self.memory):
@@ -95,6 +95,7 @@ class IntCodeComputer():
 
             # the other reasons is that the program is truly done
             if next_i == -1: # sentinel meaning more input needed
+                print("next i is -1")
                 return self.output()
             if next_i is None:
                 self.done = True
@@ -104,6 +105,14 @@ class IntCodeComputer():
 
     def isdone(self):
         return self.done
+
+    def clear_output(self):
+        self.outputs = []
+        
+    def outputs_and_clear(self):
+        out = self.outputs
+        self.outputs = []
+        return out
     
     def output(self):
         return ",".join([str(i) for i in self.outputs])
@@ -130,8 +139,6 @@ class IntCodeComputer():
 
         #print(f"i:{i} instruction:{instruction} opcode:{opcode} outputs:{self.outputs} memory:{self.memory}")
 
-        print(f"memsize: {len(self.memory)}")
-        
         # Opcode 1 adds together numbers read from two positions and stores
         # the result in a third position. The three integers immediately
         # after the opcode tell you these three positions - the first two
@@ -161,9 +168,11 @@ class IntCodeComputer():
             return i+2
             
         elif opcode == 4:
-            self.add_output(self.get_parameter(i, 1))
-            return i+2
-#            return -1
+            p = self.get_parameter(i, 1)
+            self.add_output(p)
+            self.i = i+2
+            print(f"setting output {p}")
+            return -1
 
         elif opcode == 5:
             if self.get_parameter(i, 1) != 0:
