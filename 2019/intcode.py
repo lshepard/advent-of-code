@@ -12,6 +12,18 @@ from itertools import cycle
 
 # Once you're done processing an opcode, move to the next one by stepping forward 4 positions.
 
+from enum import Enum
+class Opcode(Enum):
+    ADD = 1
+    MULTIPLY = 2
+    INPUT = 3
+    OUTPUT = 4
+    JUMPIFTRUE = 5
+    JUMPIFFALSE = 6
+    LESSTHAN = 7
+    EQUALS = 8
+    HALT = 99
+    
 class IntCodeComputer():
 
     def __init__(self, memory):
@@ -96,10 +108,10 @@ class IntCodeComputer():
             # the other reasons is that the program is truly done
             if next_i == -1: # sentinel meaning more input needed
                 print("next i is -1")
-                return self.output()
+                return self
             if next_i is None:
                 self.done = True
-                return self.output()
+                return self
             
             self.i = next_i
 
@@ -109,11 +121,6 @@ class IntCodeComputer():
     def clear_output(self):
         self.outputs = []
         
-    def outputs_and_clear(self):
-        out = self.outputs
-        self.outputs = []
-        return out
-    
     def output(self):
         return ",".join([str(i) for i in self.outputs])
 
@@ -144,7 +151,7 @@ class IntCodeComputer():
         # after the opcode tell you these three positions - the first two
         # indicate the positions from which you should read the input values,
         # and the third indicates the position at which the output should be stored.
-        if opcode == 1:
+        if opcode == Opcode.ADD: # 1
             output = self.get_parameter(i, 1) + self.get_parameter(i, 2)
             self.write_mem(self.get_parameter(i, 3, force_immediate=True), output)
             return i+4
@@ -152,12 +159,12 @@ class IntCodeComputer():
         # Opcode 2 works exactly like opcode 1, except it multiplies the two inputs
         # instead of adding them. Again, the three integers after the opcode indicate
         # where the inputs and outputs are, not their values.
-        elif opcode == 2:
+        elif opcode == Opcode.MULTIPLY: # 2
             output = self.get_parameter(i, 1) * self.get_parameter(i, 2)
             self.write_mem(self.get_parameter(i, 3, force_immediate=True), output)
             return i+4
 
-        elif opcode == 3:
+        elif opcode == Opcode.INPUT: # 3
             inp = self.get_input()
             p = self.get_parameter(i, 1, force_immediate=True)
 #            mode = self.parameter_mode(self.memory[i], 1)
@@ -166,27 +173,28 @@ class IntCodeComputer():
 #                p = p+self.relative_base
             self.write_mem(p, inp)
             return i+2
-            
-        elif opcode == 4:
+        
+        elif opcode == Opcode.OUTPUT: # 4
             p = self.get_parameter(i, 1)
+            print("adding output")
             self.add_output(p)
             self.i = i+2
             print(f"setting output {p}")
             return -1
 
-        elif opcode == 5:
+        elif opcode == Opcode.JUMPIFTRUE: # 5
             if self.get_parameter(i, 1) != 0:
                 return self.get_parameter(i, 2)
             else:
                 return i+3
 
-        elif opcode == 6:
+        elif opcode == Opcode.JUMPIFFALSE: # 6
             if self.get_parameter(i, 1) == 0:
                 return self.get_parameter(i, 2)
             else:
                 return i+3
 
-        elif opcode == 7: # less than
+        elif opcode == Opcode.LESSTHAN: # 7
             if self.get_parameter(i, 1) < self.get_parameter(i, 2):
                 val = 1
             else:
@@ -195,7 +203,7 @@ class IntCodeComputer():
             self.write_mem(self.get_parameter(i, 3, force_immediate=True), val)
             return i+4
 
-        elif opcode == 8: # less than
+        elif opcode == Opcode.EQUALS: # 8
             if self.get_parameter(i, 1) == self.get_parameter(i, 2):
                 val = 1
             else:
@@ -209,7 +217,7 @@ class IntCodeComputer():
             
             return i+2
             
-        elif opcode == 99:
+        elif opcode == Opcode.HALT: # 99
             return None
 
         else:
