@@ -38,10 +38,10 @@ class TestIntCodeComputer():
     def test_day5_3(self):
         # Using immediate mode, consider whether the input is equal to 8; output 1 (if it is) or 0 (if it is not).
         self.assert_program_with_input("3,3,1108,-1,8,3,4,3,99", 8, 1) # == 8
-        self.assert_program_with_input("3,3,1108,-1,8,3,4,3,99", 7, 1) # != 8
+        self.assert_program_with_input("3,3,1108,-1,8,3,4,3,99", 7, 0) # != 8
 
     def test_day5_4(self):
         # Using immediate mode, consider whether the input is less than 8; output 1 (if it is) or 0 (if it is not).
         self.assert_program_with_input("3,3,1107,-1,8,3,4,3,99", 7, 1) # < 8
-        self.assert_program_with_input("3,3,1107,-1,8,3,4,3,99", 9, 1) # >= 8
+        self.assert_program_with_input("3,3,1107,-1,8,3,4,3,99", 9, 0) # >= 8
         

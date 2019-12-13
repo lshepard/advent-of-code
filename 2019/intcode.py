@@ -58,7 +58,7 @@ class IntCodeComputer():
     def get_parameter(self, i, param_num, force_immediate=False):
         mode = self.parameter_mode(self.memory[i], param_num)
         raw_value = self.memory[i + param_num]
-        #print(f"i:{i} param_num:{param_num} mode:{mode} raw:{raw_value} memory:{self.memory}")
+        print(f"i:{i} param_num:{param_num} mode:{mode} raw:{raw_value} memory:{self.memory}")
         
         try:
             # TODO clean this up
@@ -98,6 +98,7 @@ class IntCodeComputer():
         self.outputs.append(val)
 
     def compute(self):
+        print("computing")
         while True:
             next_i = self.process_instruction(self.i)
 
@@ -144,14 +145,15 @@ class IntCodeComputer():
         instruction = str(self.memory[i])
         opcode = int(instruction[-2:])
 
-        #print(f"i:{i} instruction:{instruction} opcode:{opcode} outputs:{self.outputs} memory:{self.memory}")
+        print(f"i:{i} instruction:{instruction} opcode:{opcode} outputs:{self.outputs} memory:{self.memory}")
+        print(f"opcode is input? {opcode} {Opcode.INPUT} {opcode == Opcode.INPUT}")
 
         # Opcode 1 adds together numbers read from two positions and stores
         # the result in a third position. The three integers immediately
         # after the opcode tell you these three positions - the first two
         # indicate the positions from which you should read the input values,
         # and the third indicates the position at which the output should be stored.
-        if opcode == Opcode.ADD: # 1
+        if opcode == 1: # ADD
             output = self.get_parameter(i, 1) + self.get_parameter(i, 2)
             self.write_mem(self.get_parameter(i, 3, force_immediate=True), output)
             return i+4
@@ -159,12 +161,13 @@ class IntCodeComputer():
         # Opcode 2 works exactly like opcode 1, except it multiplies the two inputs
         # instead of adding them. Again, the three integers after the opcode indicate
         # where the inputs and outputs are, not their values.
-        elif opcode == Opcode.MULTIPLY: # 2
+        elif opcode == 2: # MULTIPLY
             output = self.get_parameter(i, 1) * self.get_parameter(i, 2)
             self.write_mem(self.get_parameter(i, 3, force_immediate=True), output)
             return i+4
 
-        elif opcode == Opcode.INPUT: # 3
+        elif opcode == 3: # INPUT
+            print("input opcode")
             inp = self.get_input()
             p = self.get_parameter(i, 1, force_immediate=True)
 #            mode = self.parameter_mode(self.memory[i], 1)
@@ -174,7 +177,7 @@ class IntCodeComputer():
             self.write_mem(p, inp)
             return i+2
         
-        elif opcode == Opcode.OUTPUT: # 4
+        elif opcode == 4: # OUTPUT
             p = self.get_parameter(i, 1)
             print("adding output")
             self.add_output(p)
@@ -182,19 +185,19 @@ class IntCodeComputer():
             print(f"setting output {p}")
             return -1
 
-        elif opcode == Opcode.JUMPIFTRUE: # 5
+        elif opcode ==  5: # JUMPIFTRUE:
             if self.get_parameter(i, 1) != 0:
                 return self.get_parameter(i, 2)
             else:
                 return i+3
 
-        elif opcode == Opcode.JUMPIFFALSE: # 6
+        elif opcode == 6: # JUMPIFFALSE
             if self.get_parameter(i, 1) == 0:
                 return self.get_parameter(i, 2)
             else:
                 return i+3
 
-        elif opcode == Opcode.LESSTHAN: # 7
+        elif opcode == 7: # LESSTHAN
             if self.get_parameter(i, 1) < self.get_parameter(i, 2):
                 val = 1
             else:
@@ -203,7 +206,7 @@ class IntCodeComputer():
             self.write_mem(self.get_parameter(i, 3, force_immediate=True), val)
             return i+4
 
-        elif opcode == Opcode.EQUALS: # 8
+        elif opcode == 8: # EQUALS
             if self.get_parameter(i, 1) == self.get_parameter(i, 2):
                 val = 1
             else:
@@ -212,12 +215,12 @@ class IntCodeComputer():
             self.write_mem(self.get_parameter(i, 3, force_immediate=True), val)
             return i+4
 
-        elif opcode == 9:
+        elif opcode == 9: # SET RELATIVE BASE
             self.set_relative_base(self.relative_base + self.get_parameter(i, 1))
             
             return i+2
             
-        elif opcode == Opcode.HALT: # 99
+        elif opcode == 99: # HALT
             return None
 
         else:
