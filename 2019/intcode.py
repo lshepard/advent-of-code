@@ -1,3 +1,4 @@
+import traceback
 from itertools import cycle
 
 # An Intcode program is a list of integers separated by commas (like 1,0,0,3,99). To run one,
@@ -34,6 +35,7 @@ class IntCodeComputer():
         self.outputs = []
         self.phase_setting = None
         self.relative_base = 0
+        self.input_callback = None
 
     def __repr__(self):
         return f"i:{self.i} done:{self.done} input:{self.input} outputs:{self.outputs} mem:{self.memory}"
@@ -44,6 +46,9 @@ class IntCodeComputer():
     
     def set_relative_base(self, b):
         self.relative_base = b
+        
+    def set_input_callback(self, callback):
+        self.input_callback = callback
         
     def set_input(self, input):
         self.input = input
@@ -59,7 +64,7 @@ class IntCodeComputer():
     def get_parameter(self, i, param_num, force_immediate=False):
         mode = self.parameter_mode(self.memory[i], param_num)
         raw_value = self.memory[i + param_num]
-        print(f"i:{i} param_num:{param_num} mode:{mode} raw:{raw_value} memory:{self.memory}")
+        #print(f"i:{i} param_num:{param_num} mode:{mode} raw:{raw_value}")
         
         try:
             # TODO clean this up
@@ -83,15 +88,16 @@ class IntCodeComputer():
         
 
     def write_mem(self, location, value):
-#        print(f"location:{location} length:{len(self.memory)}")
+       # print(f"location:{location} value:{value}")
 
-        
+        if location == 0:
+            traceback.print_stack()
+
         if location >= len(self.memory):
             print("writing more ...")
             for i in range(len(self.memory), location+10):
                 self.memory.append(0)
 
-            print(f"location:{location} length:{len(self.memory)}")
 
         self.memory[location] = int(value)
                 
@@ -99,7 +105,6 @@ class IntCodeComputer():
         self.outputs.append(val)
 
     def compute(self):
-        print("computing")
         while True:
             next_i = self.process_instruction(self.i)
 
@@ -113,8 +118,7 @@ class IntCodeComputer():
                 return self
             if next_i is None:
                 self.done = True
-                print("halted")
-                return self
+                return None
             
             self.i = next_i
 
@@ -135,14 +139,17 @@ class IntCodeComputer():
     # and each subsequent time to get a new input.
     # i could have it just wait.
     def get_input(self):
-        print(f"phase setting is '{self.phase_setting}'")
+        #print(f"phase setting is '{self.phase_setting}'")
         if self.phase_setting is not None:
             # one time only
             v = self.phase_setting
             print(f"delivering and clearing phase setting {self.phase_setting}")
             self.phase_setting = None
+        elif self.input_callback is not None:
+            v = self.input_callback(self.outputs)
         else:
             v = self.input
+            self.input = None
         return v
         
     def process_instruction(self, i):
@@ -150,7 +157,7 @@ class IntCodeComputer():
         instruction = str(self.memory[i])
         opcode = int(instruction[-2:])
 
-        print(f"i:{i} instruction:{instruction} opcode:{opcode} outputs:{self.outputs} memory:{self.memory}")
+#        print(f"i:{i} instruction:{instruction} opcode:{opcode} ")
 
         # Opcode 1 adds together numbers read from two positions and stores
         # the result in a third position. The three integers immediately
@@ -171,24 +178,17 @@ class IntCodeComputer():
             return i+4
 
         elif opcode == 3: # INPUT
+#            print(f"opcode 3 i {self.i}")
             inp = self.get_input()
-            print(f"received input {inp}")
             p = self.get_parameter(i, 1, force_immediate=True)
-#            mode = self.parameter_mode(self.memory[i], 1)
-            # writing memory is a bit trick,y i need to reimplement here
-#            if mode == 2:
-#                p = p+self.relative_base
             self.write_mem(p, inp)
             return i+2
         
         elif opcode == 4: # OUTPUT
             p = self.get_parameter(i, 1)
-            print("adding output")
             self.add_output(p)
-            self.i = i+2
-            print(f"setting output {p}")
-            return -1
-
+            return i+2
+ 
         elif opcode ==  5: # JUMPIFTRUE:
             if self.get_parameter(i, 1) != 0:
                 return self.get_parameter(i, 2)
