@@ -145,8 +145,7 @@ class IntCodeComputer():
         instruction = str(self.memory[i])
         opcode = int(instruction[-2:])
 
-        print(f"i:{i} instruction:{instruction} opcode:{opcode} outputs:{self.outputs} memory:{self.memory}")
-        print(f"opcode is input? {opcode} {Opcode.INPUT} {opcode == Opcode.INPUT}")
+#        print(f"i:{i} instruction:{instruction} opcode:{opcode} outputs:{self.outputs} memory:{self.memory}")
 
         # Opcode 1 adds together numbers read from two positions and stores
         # the result in a third position. The three integers immediately
