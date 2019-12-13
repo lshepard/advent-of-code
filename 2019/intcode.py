@@ -39,12 +39,13 @@ class IntCodeComputer():
         return f"i:{self.i} done:{self.done} input:{self.input} outputs:{self.outputs} mem:{self.memory}"
 
     def set_phase_setting(self, phase_setting):
+        print(f"setting phase setting {phase_setting}")
         self.phase_setting = phase_setting
     
     def set_relative_base(self, b):
         self.relative_base = b
         
-    def add_input(self, input):
+    def set_input(self, input):
         self.input = input
         
     def parameter_mode(self, operation, n):
@@ -108,15 +109,17 @@ class IntCodeComputer():
 
             # the other reasons is that the program is truly done
             if next_i == -1: # sentinel meaning more input needed
-                print("next i is -1")
+                print("next i is -1 - waiting for more input")
                 return self
             if next_i is None:
                 self.done = True
+                print("halted")
                 return self
             
             self.i = next_i
 
     def isdone(self):
+        print(f"i'm done? {self.done}")
         return self.done
 
     def clear_output(self):
@@ -132,9 +135,11 @@ class IntCodeComputer():
     # and each subsequent time to get a new input.
     # i could have it just wait.
     def get_input(self):
-        if self.phase_setting:
+        print(f"phase setting is '{self.phase_setting}'")
+        if self.phase_setting is not None:
             # one time only
             v = self.phase_setting
+            print(f"delivering and clearing phase setting {self.phase_setting}")
             self.phase_setting = None
         else:
             v = self.input
@@ -145,7 +150,7 @@ class IntCodeComputer():
         instruction = str(self.memory[i])
         opcode = int(instruction[-2:])
 
-#        print(f"i:{i} instruction:{instruction} opcode:{opcode} outputs:{self.outputs} memory:{self.memory}")
+        print(f"i:{i} instruction:{instruction} opcode:{opcode} outputs:{self.outputs} memory:{self.memory}")
 
         # Opcode 1 adds together numbers read from two positions and stores
         # the result in a third position. The three integers immediately
@@ -166,8 +171,8 @@ class IntCodeComputer():
             return i+4
 
         elif opcode == 3: # INPUT
-            print("input opcode")
             inp = self.get_input()
+            print(f"received input {inp}")
             p = self.get_parameter(i, 1, force_immediate=True)
 #            mode = self.parameter_mode(self.memory[i], 1)
             # writing memory is a bit trick,y i need to reimplement here
