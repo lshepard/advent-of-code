@@ -27,7 +27,7 @@ prev_ballx = 20
 def input_callback(outputs):
     global prev_ballx
     tiles = [outputs[i:i+3] for i in range(0, len(outputs), 3)]
-    #print(display(tiles))
+    print(display(tiles))
 #    print(f"Score: {scores(tiles)[-1]}")
 
     ballx = [t[0] for t in tiles if t[2] == 4][-1]
