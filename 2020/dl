@@ -1,0 +1,5 @@
+#!/bin/bash
+
+SESSION=53616c7465645f5f345379f27e0ba88379774f5997b415e3c64db11780ad47134d63951cb1e4a2ed99ed808d9edf1072
+DAY=`printf "%02d\n" $1`
+curl -o /Users/lukeshepard/code/advent-of-code/2020/inputs/day$DAY --cookie "session=$SESSION" https://adventofcode.com/2020/day/$1/input
