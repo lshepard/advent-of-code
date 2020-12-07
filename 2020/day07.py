@@ -49,7 +49,20 @@ def how_many(graph, bagtype):
         return 1
     else:
         return sum([how_many(graph, t) for t in graph[bagtype]])
-        
+
+def part2(parsed_rules):
+    print("rules", parsed_rules)
+    return how_many2(parsed_rules, "shiny gold") - 1
+
+def how_many2(graph, bagtype):
+    s = 1 # one for this bag
+    for target_type, num in graph.get(bagtype,[]).items():
+        # add all the ones it contains
+        s += num * how_many2(graph, target_type)
+    return s
+#        x = [1 + (int(num) * how_many2(graph, target_type) for (target_type, num) in graph[bagtype].items()]
+#        return sum(x)
+            
 
 test = """light red bags contain 1 bright white bag, 2 muted yellow bags.
 dark orange bags contain 3 bright white bags, 4 muted yellow bags.
@@ -62,15 +75,25 @@ faded blue bags contain no other bags.
 dotted black bags contain no other bags."""
 
 
-rules = test.split("\n")
+test2 = """shiny gold bags contain 2 dark red bags.
+dark red bags contain 2 dark orange bags.
+dark orange bags contain 2 dark yellow bags.
+dark yellow bags contain 2 dark green bags.
+dark green bags contain 2 dark blue bags.
+dark blue bags contain 2 dark violet bags.
+dark violet bags contain no other bags."""
 
-assert(parse_rule(rules[0]) == {"light red": {"bright white": 1, "muted yellow": 2}})
+rules = test2.split("\n")
+rules = open('inputs/day07').read().strip().split("\n")
+parsed_rules = parse_rules(rules)
+print(parsed_rules)
+print(part2(parsed_rules))
 
-#parsed_rules = parse_rules(rules)
+#
 #print(parsed_rules)
 #assert(part1(parsed_rules) == 4)
-print("---")
-real = open('inputs/day07').read().strip().split("\n")
-pr = parse_rules(real)
+#print("---")
+#real = open('inputs/day07').read().strip().split("\n")
+#pr = parse_rules(real)
 #print(pr)
-print(part1(pr))
+#print(part1(pr))
