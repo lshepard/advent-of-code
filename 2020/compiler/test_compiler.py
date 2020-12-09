@@ -30,7 +30,7 @@ def test_parse_error():
     code = """no.space"""
     with pytest.raises(ParseError):
         Compiler.run(code)
-        
+
 def test_day8_pt1():
     
     code = """nop +0

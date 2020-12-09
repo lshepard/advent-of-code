@@ -16,6 +16,7 @@ class ParseError(Exception):
         super().__init__(self.message)
 
 class Compiler():
+    """Encapsulates the compiler that is defined in AOC day 8"""
     def __init__(self, code=None):
         self.accumulator = 0
         self.code = None
@@ -24,6 +25,7 @@ class Compiler():
 
     def set_code(self, code):
         self.code = code.split("\n")
+        
 
     def execute_to_no_repeat(self):
         """Executes until a line is repeated then returns the accumulator.
