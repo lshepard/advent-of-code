@@ -1,51 +1,64 @@
-test = """F10
-N3
-F7
-R90
-F11"""
+import pytest
 
-inp = open("inputs/day12").readlines()
-#inp = test.split("\n")
-
-def process(lines):
-    
-    x = 0
-    y = 0
-    d = 0 # index of directions
-
-    directions = [ (1,0), (0,-1), (-1,0), (0,1) ]
-    
-    for line in lines:
-        print(x,y,directions[d])
-        print(line)
-        direction = line[0]
-        val = int(line[1:])
-
-        if direction == "F":
-            x += val * directions[d][0]
-            y += val * directions[d][1]
-
-        elif direction == "R":
-            d = int(d + (val / 90)) % 4
-        elif direction == "L":
-            d = int(d - (val / 90)) % 4
-        elif direction == "N":
-            y = y+val
-        elif direction == "S":
-            y = y-val
-        elif direction == "E":
-            x = x+val
-        elif direction == "W":
-            x = x-val
-        else:
-            raise ValueError("invalid line " + line)
-
-    print(x,y,directions[d])
+def part1(lines):
+    x,y = process(lines, wx=1, wy=0, move_on_cardinal_direction=True)
     return abs(x) + abs(y)
 
-                            
-            
-    
+def part2(lines):
+    x,y = process(lines, wx=10, wy=1, move_on_cardinal_direction=False)
+    return abs(x) + abs(y)
 
-print(process(inp))
+def rotate(wx,wy,degrees,direction):
+    """Rotates the waypoint N degrees in a direction (either 1 or -1)"""
+    for i in range(int(degrees / 90)):
+        wy,wx = (-direction * wx), (direction * wy)
+    return wx,wy
+    
+def process(lines, wx, wy, move_on_cardinal_direction):
+    x = 0
+    y = 0
+
+    for line in lines:
+        direction = line.strip()[0]
+        val = int(line.strip()[1:])
+
+        dirs = {
+            "N": (0,1),
+            "S": (0,-1),
+            "E": (1,0),
+            "W": (-1,0)
+            }
+        
+        if direction == "F":
+            x += val * wx
+            y += val * wy
+        elif direction == "R":
+            wx,wy = rotate(wx,wy,val,1)
+        elif direction == "L":
+            wx,wy = rotate(wx,wy,val,-1)
+        elif direction in ["N", "S", "E", "W"]:
+            if move_on_cardinal_direction:
+                x += val * dirs[direction][0]
+                y += val * dirs[direction][1]
+            else:
+                wx += val * dirs[direction][0]
+                wy += val * dirs[direction][1]
+        else:
+            raise ValueError("invalid line " + line)
+        
+    return (x,y)
+
+test = ["F10","N3","F7","R90","F11"]
+
+assert part1(test) == 25
+assert part2(test) == 286
+
+if __name__ == "__main__":
+    inp = open("inputs/day12").readlines()
+    
+    print("part1")
+    print(part1(inp))
+
+    print("part2")
+    print(part2(inp))
             
