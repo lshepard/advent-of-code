@@ -17,31 +17,18 @@ class Compiler():
         else:
             raise ValueError("Invalid value for code")
 
-    def execute_to_no_repeat(self):
-        """Executes until a line is repeated then returns the accumulator.
-        Used for part 1 of day 8."""
+    def execute(self, raise_on_repeat=False):
+        """Executes until the end of the file. Possible raises an error if lines are repeated."""
 
-        lines_seen = set()
-        line_num = 0
-        while True:
-            if line_num in lines_seen:
-                return self.accumulator
-            
-            lines_seen.add(line_num)
-            line_num = self.execute_line(line_num)
-
-    def execute_but_dont_repeat(self):
-        """Executes an entire program to completion. If there's a repeated line, throw an error.
-        Used for part 2 of day 8."""
         lines_seen = set()
         line_num = 0
         while line_num < len(self.code):
             if line_num in lines_seen:
                 raise RepeatedLineError()
-
+            
             lines_seen.add(line_num)
             line_num = self.execute_line(line_num)
-        
+            
         return self.accumulator
 
     def execute_line(self, line_num):

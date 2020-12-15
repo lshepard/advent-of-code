@@ -25,10 +25,12 @@ acc +6
 """
 
     
-print("Part 1 - try to first line repeated")
-
 lines = list(fileinput.input())
-print(Compiler(lines).execute_to_no_repeat())
+c = Compiler(lines)
+try:
+    c.execute(raise_on_repeat=True)
+except RepeatedLineError:
+    print("Part 1: " + str(c.accumulator))
 
 print("Part 2 - try all combinations")
 for i, line in enumerate(lines):
@@ -42,7 +44,7 @@ for i, line in enumerate(lines):
     clines = lines.copy()
     clines[i] = line
     try:
-        print(Compiler(clines).execute_but_dont_repeat())
+        print(Compiler(clines).execute(raise_on_repeat=True))
         break
     except RepeatedLineError:
         next

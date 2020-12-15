@@ -42,4 +42,5 @@ def test_day8_pt1():
     acc +1
     jmp -4
     acc +6"""
-    assert Compiler(code).execute_to_no_repeat() == 5
+    with pytest.raises(RepeatedLineError):
+        Compiler(code).execute(raise_on_repeat=True)
