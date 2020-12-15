@@ -1,4 +1,5 @@
 from tqdm import tqdm
+from compiler.compiler import *
 
 test = """nop +0
 acc +1

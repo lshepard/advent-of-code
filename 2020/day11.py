@@ -1,6 +1,5 @@
 import copy
 from collections import Counter
-from compiler.compiler import *
 
 test = """L.LL.LL.LL
 LLLLLLL.LL

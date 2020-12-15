@@ -1,5 +1,3 @@
-from compiler.compiler import *
-
 def part1(nums, preamble_size):
     seen_nums = dict()
 
