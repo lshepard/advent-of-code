@@ -39,8 +39,8 @@ def part2(lines):
     mem = dict()
     
     for line in lines:
-        print(mem)
-        print(line)
+        #print(mem)
+        #print(line)
         mem_matches = re.match("mem\[(\d+)\] = (\d+)",line)
         mask_matches = re.match("mask = ([01X]+)",line)
         if mem_matches:
@@ -63,13 +63,13 @@ def part2(lines):
                     raise ValueError("unknown c " + c)
 
                 addr_str = newdigit + addr_str
-                print(addr_str)
-            print(addr_str)
+                #print(addr_str)
+            #print(addr_str)
             addrs = mem_addresses(addr_str)
             #print("addrs",addrs)
             for a in addrs:
                 an = int(a,2)
-                print("writing to " + str(a) + " (" + str(an) + ") val " + str(val))
+                #print("writing to " + str(a) + " (" + str(an) + ") val " + str(val))
                 mem[an] = val
                 
         elif mask_matches:
