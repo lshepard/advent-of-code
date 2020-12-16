@@ -11,8 +11,6 @@ def how_many(inp, num):
         if i <= len(inp):
             last = int(inp[i-1])
         else:
-            
-            
             if val is None: # last number was seen thefirst time
                 last = 0
             else:
@@ -21,9 +19,10 @@ def how_many(inp, num):
         val = mem.get(last,None)
         
         mem[last] = i
-#        print(last, val, mem)
+#        if i % 1000 == 0:
+#            print(i)
     return last
 
 #print(how_many("0,3,6".split(","),2020))
-#print(how_many(inp.split(","), 2020))
+print(how_many(inp.split(","), 2020))
 print(how_many(inp.split(","), 30000000))
