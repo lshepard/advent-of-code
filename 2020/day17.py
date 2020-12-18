@@ -1,3 +1,4 @@
+
 from operator import itemgetter
 from itertools import groupby
 
@@ -65,7 +66,7 @@ def part1(inp):
     cubes = active_cubes(inp)
     for i in range(6):
         #print("---- round " + str(i))
-        #print_cubes(cubes)
+        print_cubes(cubes)
         cubes = next_cubes(cubes, wdim=False)
     print(len(cubes))
 
