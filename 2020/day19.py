@@ -46,38 +46,33 @@ for i, line in enumerate(inp):
         drules[rule].add(left) # this is a dict of sets of lists
 
 lleaders = {rule.split(" ")[0] for rule in drules.keys()}
-rleaders = {rule.split(" ")[1] for rule in drules.keys()}
-        
+
+print(sorted(lleaders))
+
+
 def message_matches(items:list, recursion_depth = 0, ngrams=None):
-    global dnums, drules
-    print(recursion_depth, "items", " ".join(items))
+    global dnums, drules, lleaders
+#    print(recursion_depth, "items", " ".join(items))
 
     # base case
     if items == ["0"]:
         return True
-
+    
+    if len(items) and items[0] not in lleaders:
+        return False
+    
     for i, item in enumerate(items):
-        if item not in lleaders:
-            continue
-        
-    
-    # check the leftmost 1 and 2 gram, if they don't appear in the reduction anywhere
-    # then eliminate
-    
-    rule_match_set = None
-    ngrams = [(i, items[i]) for i in range(len(items)) if ] + \
-        [(i, items[i:i+2]) for i in range(len(items)-1)]
-
-    # before we recurse, can we see if it's even a viable tree?
-    
-    
-    for i, ngram in ngrams:
-        rule_match_set = drules.get(" ".join(ngram))
-        if rule_match_set:
-            for rule_match in rule_match_set:
-                res = message_matches(items[:i] + rule_match.split(" ") + items[i+len(ngram):], recursion_depth + 1, ngrams)
-                if res is True:
-                    return True
+        if item in lleaders: # there are possibly others
+            for n in [1,2]:
+                ngram = items[i:i+n]
+                rule_match_set = drules.get(" ".join(ngram))
+                if rule_match_set:
+                    for rule_match in rule_match_set:
+                        res = message_matches(items[:i] + rule_match.split(" ") + items[i+len(ngram):], recursion_depth + 1, ngrams)
+                        if res is True:
+                            return True
+        else:
+            return False                
 
     return False
 
