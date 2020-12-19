@@ -1,3 +1,4 @@
+import pygtrie
 from tqdm import tqdm
 
 inp = """0: 4 1 5
@@ -39,15 +40,77 @@ for i, line in enumerate(inp):
     
     rules = [r.replace("\"","").strip() for r in right.split("|")]
 
-    dnums[left] = rules
+    dnums[int(left)] = rules
 
     for rule in rules:
         drules[rule]  = drules.get(rule, set())
         drules[rule].add(left) # this is a dict of sets of lists
 
-lleaders = {rule.split(" ")[0] for rule in drules.keys()}
+# just swap out a and b direct
+dnums2 = dict()
+for key, rules in dnums.items():
+    rules2 = []
+    for rule in rules:
+        rule2 = []
+        for term in rule.split(" "):
+            if term == "16":
+                term = "b"
+            elif term == "26":
+                term = "a"
+            rule2.append(term)
+        rules2.append(" ".join(rule2))
+    dnums2[key] = rules2
+dnums = dnums2
 
-print(sorted(lleaders))
+strings = inp[i:]
+
+# put them in a trie
+t = pygtrie.CharTrie()
+for s in strings:
+    t[s] = True
+
+def num_that_match(items, possible_strings):
+    global t
+#    print(" ".join([str(i) for i in items]))
+
+
+    has_only_ab = True
+    for i, item in enumerate(items):
+        if item not in ["a","b"]:
+            has_only_ab = False
+            if i > 0 and not t.has_subtrie("".join(items[:i])):
+                #print("prune ", "".join(items[:i]))
+                return 0 # this path is out
+            break
+            
+    if has_only_ab:
+        test_string = "".join(items)
+        #print("test",test_string)
+        if test_string in possible_strings:
+            print("found",test_string)
+            return 1
+        else:
+            return 0
+    
+    s = 0
+    for i, item in enumerate(items):
+        if item not in ["a","b"]:
+            # check that this still a viable path
+            
+            #print("expand out " + str(item))
+            # expand out and see if it matches any of the strings
+            matches = dnums.get(int(item))
+            if matches:
+                for match in matches:
+                    st = items[:i] + match.split(" ") + items[i+1:]
+                    
+                    #print(st)
+                    s += num_that_match(st, possible_strings)
+    return s
+
+    
+
+# let's try it a different way - generate all the possible permutations and see if they apply to any of the strings
 
 
 def message_matches(items:list, recursion_depth = 0, ngrams=None):
@@ -76,15 +139,9 @@ def message_matches(items:list, recursion_depth = 0, ngrams=None):
 
     return False
 
+# beginning with 0 start expanding
+print(num_that_match([0], set(strings)))
 
-# now check that the message matches
-c = 0
-for line in tqdm(inp[i:]):
-    # check if the message matches
-    if message_matches(list(line.strip())):
-        c += 1
-
-print(c)
 
 
 # 88 88 43 100 59 19 112 117 46 -- is this one?
