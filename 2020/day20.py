@@ -36,8 +36,31 @@ class Board():
             b += f"  {coords} \t {tile['tile']} permutation {perm}\n"
 
         return b
+
+    def image_list(self):
+        all_coords = self.tiles.keys()
+        xs = [c[0] for c in all_coords]
+        ys = [c[1] for c in all_coords]
+
+        x_offset = min(xs)
+        y_offset = min(ys)
         
-    def product_of_corner_tiles(self):
+        # init new array - 8 times to capture the lack of border
+        newlines = [[' ' for x in range(8 * len(xs))] for y in range( 8 * len(ys))]
+
+        for j in range(min(ys), max(ys) + 1):
+            for i in range(min(xs), max(xs) + 1):
+                tile = self.tiles.get( (i,j) )
+
+                lines = tile["tile"].inner_repr(tile["permutation"])
+                for y, line in enumerate(lines):
+                    for x, c in enumerate(line):
+                        newlines[x + x_offset][y + y_offset] = c
+        
+        return newlines
+                        
+    
+    def corner_tiles(self):
         """Answer to part 1 of the assignment"""
         
         all_coords = self.tiles.keys()
@@ -50,7 +73,7 @@ class Board():
         max_y = max(ys)
 
         return [self.tiles[(x, y)]['tile'].id for x in (min_x, max_x) for y in (min_y, max_y) ]
-            
+
         
     def get_relative_coords(self, base_coords, direction):
         """Given base coordinates, get the relative tile in this board - or None if none there
@@ -86,14 +109,11 @@ class Board():
                     # the matching space must be the opposite of the number and the opposite direction
                     # if i'm facing to the left (3) with number N, then i need my matching tile to be facing right (1) with number flip(N)
                     self.open_spaces[rel_c][(direction + 2) % 4] = flip(this_tile['permutation'][direction])
-        #print("calculated " + str(len(self.open_spaces)) + " spaces")
-        print(self.open_spaces)
-
+        
     def find_spaces(self, tile):
         """Finds all spaces that will work - returns the space and permutation of the tile that would fit there"""
 
         open_spaces_for_this_tile = [] # will be a list of tuples, each one containing the coords and permutation
-        print(self.open_spaces)
         for coords, space in self.open_spaces.items():
 
             for permutation in tile.permutations():
@@ -169,11 +189,37 @@ class Tile():
                               flip(edges[3]) ]
                 permutations.append(edges)
         return permutations
+
+    def get_rotate_flip_counts(self, permutation):
+        """Returns how many times rotation and flip were done for that permuatation"""
+        perms = self.permutations()
+        for n_rotate in range(4):
+            for n_flip in [0, 1]:
+                if permutation == perms[n_rotate * 2 + n_flip]:
+                    return (n_rotate, n_flip)
+
+    def rotate(self, tile):
+        newt = [ tile[10-j,i] for i in range(10) for j in range(10) ]
+
+    def inner_repr(self, permutation):
+        """Returns how the inside of the tile looks for a given permutation"""
+        (n_rotate, n_flip) = self.get_rotate_flip_counts(permutation)
         
-        
+        lines = [list(r) for r in self.tilestr.split("\n")[1:]]
+        print(lines, len(lines))
+        for z in range(n_rotate):
+            lines =  [ lines[9-j][i] for i in range(10) for j in range(10) ]
+        if n_flip:
+            lines =  [ lines[i][9-j] for i in range(10) for j in range(10) ]
+
+        print(lines)
+        # now cut off the border
+        return [line[1:8] for line in lines[1:8]]
+            
     def __repr__(self):
         return "Tile " + str(self.id) + ": " + str(["{0:010b}".format(n) for n in self.edges])
 
+    
 def flip(n):
     """Flip an edge"""
     return int("{0:010b}".format(n)[::-1],2)
@@ -191,17 +237,16 @@ def solve_puzzle(tiles):
     board = Board( tiles = { (0,0) : {
         "tile": first_tile,
         "permutation": first_tile.permutations()[0]}})
-    final_board = completed_board(board,remaining_tiles)
+    final_board  = completed_board(board,remaining_tiles)
+    if not final_board:
+        print("Did not reach an answer")
+    return final_board
 
-    if final_board:
-        print("Final Answer: ", final_board.product_of_corner_tiles() )
-    else:
-        print("Did not reach a final answer.")
 
 def completed_board(board, remaining_tiles):
     """Recursive function to calculate a given board state"""
 
-    print("\n\n", board)
+#    print("\n\n", board)
     
     if len(remaining_tiles) == 0:
         # base case! success!
@@ -215,12 +260,12 @@ def completed_board(board, remaining_tiles):
             if res:
                 return res
             # if this doesn't hit, try the next open space
-    print(f"Nothing found , {len(remaining_tiles)} left: {remaining_tiles}")
     return None
     
 tiles = [Tile(tilestr) for tilestr in open("inputs/day20").read().split("\n\n")]
 
-for tile in tiles:
-    print ("Tile", tile.id, tile.permutations())
 
-solve_puzzle(tiles)
+final = solve_puzzle(tiles)
+
+    
+print(final.image_list())
