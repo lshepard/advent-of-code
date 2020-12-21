@@ -1,3 +1,4 @@
+import math
 import fileinput
 
 class Board():
@@ -28,7 +29,28 @@ class Board():
                 else:
                     b += "---- "
             b += "\n"
+
+        b += "\n"
+        for coords, tile in self.tiles.items():
+            perm = str(["{0:010b}".format(n) for n in tile['permutation']])
+            b += f"  {coords} \t {tile['tile']} permutation {perm}\n"
+
         return b
+        
+    def product_of_corner_tiles(self):
+        """Answer to part 1 of the assignment"""
+        
+        all_coords = self.tiles.keys()
+        xs = [c[0] for c in all_coords]
+        ys = [c[1] for c in all_coords]
+        
+        min_x = min(xs)
+        min_y = min(ys)
+        max_x = max(xs)
+        max_y = max(ys)
+
+        return [self.tiles[(x, y)]['tile'].id for x in (min_x, max_x) for y in (min_y, max_y) ]
+            
         
     def get_relative_coords(self, base_coords, direction):
         """Given base coordinates, get the relative tile in this board - or None if none there
@@ -63,15 +85,15 @@ class Board():
 
                     # the matching space must be the opposite of the number and the opposite direction
                     # if i'm facing to the left (3) with number N, then i need my matching tile to be facing right (1) with number flip(N)
-                    self.open_spaces[rel_c][direction + 2 % 4] = flip(this_tile['permutation'][direction])
+                    self.open_spaces[rel_c][(direction + 2) % 4] = flip(this_tile['permutation'][direction])
         #print("calculated " + str(len(self.open_spaces)) + " spaces")
-        #print(self.open_spaces)
+        print(self.open_spaces)
 
     def find_spaces(self, tile):
         """Finds all spaces that will work - returns the space and permutation of the tile that would fit there"""
 
         open_spaces_for_this_tile = [] # will be a list of tuples, each one containing the coords and permutation
-        #print(self.open_spaces)
+        print(self.open_spaces)
         for coords, space in self.open_spaces.items():
 
             for permutation in tile.permutations():
@@ -122,9 +144,9 @@ class Tile():
         self.id = int(lines[0].split(" ")[1][:-1])
         
         top_edge =    self.edgenum(lines[1].strip())
-        bottom_edge = self.edgenum(lines[-1].strip())
-        left_edge =   self.edgenum("".join([line[0] for line in lines[1:] ]))
         right_edge =  self.edgenum("".join([line[-1] for line in lines[1:] ]))
+        bottom_edge = flip(self.edgenum(lines[-1].strip()))
+        left_edge =   flip(self.edgenum("".join([line[0] for line in lines[1:] ])))
 
         self.edges = [top_edge, right_edge, bottom_edge, left_edge]
 
@@ -142,15 +164,15 @@ class Tile():
                 
                 if to_flip: # top to bottom
                     edges = [ flip(edges[2]),
-                              edges[1],
+                              flip(edges[1]),
                               flip(edges[0]),
-                              edges[3] ]
+                              flip(edges[3]) ]
                 permutations.append(edges)
         return permutations
         
         
     def __repr__(self):
-        return "Tile " + str(self.id) + ": " + str(self.edges)
+        return "Tile " + str(self.id) + ": " + str(["{0:010b}".format(n) for n in self.edges])
 
 def flip(n):
     """Flip an edge"""
@@ -169,12 +191,17 @@ def solve_puzzle(tiles):
     board = Board( tiles = { (0,0) : {
         "tile": first_tile,
         "permutation": first_tile.permutations()[0]}})
-    return completed_board(board,remaining_tiles)
+    final_board = completed_board(board,remaining_tiles)
+
+    if final_board:
+        print("Final Answer: ", final_board.product_of_corner_tiles() )
+    else:
+        print("Did not reach a final answer.")
 
 def completed_board(board, remaining_tiles):
     """Recursive function to calculate a given board state"""
 
-    print("board", board)
+    print("\n\n", board)
     
     if len(remaining_tiles) == 0:
         # base case! success!
@@ -188,7 +215,7 @@ def completed_board(board, remaining_tiles):
             if res:
                 return res
             # if this doesn't hit, try the next open space
-
+    print(f"Nothing found , {len(remaining_tiles)} left: {remaining_tiles}")
     return None
     
 tiles = [Tile(tilestr) for tilestr in open("inputs/day20.sample").read().split("\n\n")]
