@@ -1,5 +1,7 @@
 import math
 import fileinput
+SQUARE_SIZE=3
+n_tile = 0
 
 class Board():
     """Stores a set of tiles that are matched to each other in a contiguous block.
@@ -42,22 +44,30 @@ class Board():
         xs = [c[0] for c in all_coords]
         ys = [c[1] for c in all_coords]
 
-        x_offset = min(xs)
-        y_offset = min(ys)
+        x_offset = -min(xs)
+        y_offset = -min(ys)
+
+        grid_size = SQUARE_SIZE*8
         
         # init new array - 8 times to capture the lack of border
-        newlines = [[' ' for x in range(8 * len(xs))] for y in range( 8 * len(ys))]
+        newlines = [['/' for x in range(grid_size)] for y in range(grid_size)]
 
+        print(f"length rows:{len(newlines)} cols:{len(newlines[0])}")
         for j in range(min(ys), max(ys) + 1):
             for i in range(min(xs), max(xs) + 1):
                 tile = self.tiles.get( (i,j) )
 
                 lines = tile["tile"].inner_repr(tile["permutation"])
+                
                 for y, line in enumerate(lines):
                     for x, c in enumerate(line):
-                        newlines[x + x_offset][y + y_offset] = c
+                        a = (i + x_offset)*8 + x
+                        b = (j + y_offset)*8 + y
+#                        print(f"ij({i},{j}) ab({a},{b}) Setting {x} + {x_offset}, {y} + {y_offset} to {c}")
+                        newlines[b][a] = c
+                print( f"\nTile {tile['tile'].id}\n" + "\n".join(["".join(line) for line in lines]))
         
-        return newlines
+        return "\n".join(["".join(line) for line in newlines])
                         
     
     def corner_tiles(self):
@@ -193,6 +203,8 @@ class Tile():
     def get_rotate_flip_counts(self, permutation):
         """Returns how many times rotation and flip were done for that permuatation"""
         perms = self.permutations()
+        print("Desired permutation",permutation)
+        print("All permutations",perms)
         for n_rotate in range(4):
             for n_flip in [0, 1]:
                 if permutation == perms[n_rotate * 2 + n_flip]:
@@ -204,17 +216,29 @@ class Tile():
     def inner_repr(self, permutation):
         """Returns how the inside of the tile looks for a given permutation"""
         (n_rotate, n_flip) = self.get_rotate_flip_counts(permutation)
-        
+        global n_tile
+        n_tile += 1
+        n_tile_ch = chr(n_tile + 65)
+        print(f"{n_rotate} rotations and {n_flip} flip repr for {self}")
         lines = [list(r) for r in self.tilestr.split("\n")[1:]]
-        print(lines, len(lines))
-        for z in range(n_rotate):
-            lines =  [ lines[9-j][i] for i in range(10) for j in range(10) ]
-        if n_flip:
-            lines =  [ lines[i][9-j] for i in range(10) for j in range(10) ]
+#        print(lines, len(lines))
 
-        print(lines)
+        def r(i,j):
+#            print(i,j)
+#            return n_tile_ch
+            return lines[9-j][i]
+        def f(i,j):
+#            print(i,j)
+            return lines[i][9-j]
+        for z in range(n_rotate):
+            lines =  [ [r(i,j) for j in range(10)] for i in range(10) ]
+        if n_flip:
+            lines =  [ [f(i,j) for j in range(10)] for i in range(10) ]
+
+        base_c = 96 if n_tile % 2 == 0  else 64
+#        return [[chr(base_c+i+j+n_tile) for i in range(1,9)] for j,line in enumerate(lines[1:9])]
         # now cut off the border
-        return [line[1:8] for line in lines[1:8]]
+        return [line[1:9] for line in lines[1:9]]
             
     def __repr__(self):
         return "Tile " + str(self.id) + ": " + str(["{0:010b}".format(n) for n in self.edges])
@@ -236,10 +260,11 @@ def solve_puzzle(tiles):
     remaining_tiles = tiles[1:]
     board = Board( tiles = { (0,0) : {
         "tile": first_tile,
-        "permutation": first_tile.permutations()[0]}})
+        "permutation": first_tile.permutations()[1]}})
     final_board  = completed_board(board,remaining_tiles)
     if not final_board:
         print("Did not reach an answer")
+    print(final_board)
     return final_board
 
 
@@ -262,10 +287,122 @@ def completed_board(board, remaining_tiles):
             # if this doesn't hit, try the next open space
     return None
     
-tiles = [Tile(tilestr) for tilestr in open("inputs/day20").read().split("\n\n")]
+tiles = [Tile(tilestr) for tilestr in open("inputs/day20.sample").read().split("\n\n")]
 
 
 final = solve_puzzle(tiles)
 
+im = final.image_list()
+
+dragon_mask = """                  # 
+#    ##    ##    ###
+ #  #  #  #  #  #"""
+
+# i have the image - let's rotate and flip it a few times
+def count_dragons(lines, mask):
+    # check for each to see if the mask fits
+    # i'm sure there's a better way to do this but ...
+
     
-print(final.image_list())
+
+    n = 0
+    
+    for j, row in enumerate(lines):
+        for i, c in enumerate(row):
+#            print(f"testing at {(i,j)}")
+            # check if the dragon appears starting at this spot
+            notfound = False
+            for my, mrow in enumerate(mask.split("\n")):
+                if notfound:
+                    break
+                for mx, ch in enumerate(list(mrow)):
+#                    print(f"    check {(mx,my)} = {ch} against {lines[my][mx]}")
+                    if ch == "#": # only test if this is present
+                        test_y = j+my
+                        test_x = i+mx
+#                        print(f"testing {test_y} {test_x}")
+                        if (test_y >= len(lines)) or (test_x >= len(lines[0])) or (lines[test_y][test_x] != "#"):
+                            notfound = True
+                            break
+            if not notfound:
+                n += 1
+                print("Dragon found!")
+    return n
+
+   
+
+
+with open("day20.output.image","w") as f:
+    f.write(im)
+
+
+
+# just need to rotate and flip it several times
+lines = [list(row) for row in im.split("\n")]
+SQUARE_LEN=SQUARE_SIZE*8
+
+for n_rotations in range(4):
+    for to_flip in (False, True):
+
+        print(f"rotate {n_rotations} times and flip {to_flip}")
+        
+        newlines = lines.copy()
+        def r(i,j):
+#            print("rotate",(i,j))
+            return newlines[SQUARE_LEN-1-j][i]
+        def f(i,j):
+#            print(f"newlines {len(newlines)} {SQUARE_LEN} {len(newlines[0])}")
+#            print("flip",(i,j)," and ",SQUARE_LEN-1-j)
+            return newlines[i][SQUARE_LEN-1-j]
+
+        print("---\n   " + "\n   ".join(["".join(line) for line in newlines]))
+
+        for n in range(n_rotations): # rotate this number
+            newlines = [ [r(i,j) for j in range(SQUARE_LEN)] for i in range(SQUARE_LEN) ]
+            print(f"rotation {n}")
+            print("---\n   " + "\n   ".join(["".join(line) for line in newlines]))
+
+        if to_flip:
+            print("flip")
+            newlines = [ [f(i,j) for j in range(SQUARE_LEN)] for i in range(SQUARE_LEN) ]
+            print("---\n   " + "\n   ".join(["".join(line) for line in newlines]))
+
+        print("\n".join(["".join(line) for line in newlines]))
+
+        n_dragons = count_dragons(newlines, dragon_mask)
+        print(n_dragons)
+        if n_dragons > 0:
+
+            print("n dragons ", n_dragons)
+            # todo: calculte the answer
+
+
+dragon_sample = """.####...#####..#...###..
+#####..#..#.#.####..#.#.
+.#.#...#.###...#.##.##..
+#.#.##.###.#.##.##.#####
+..##.###.####..#.####.##
+...#.#..##.##...#..#..##
+#.##.#..#.#..#..##.#.#..
+.###.##.....#...###.#...
+#.####.#.#....##.#..#.#.
+##...#..#....#..#...####
+..#.##...###..#.#####..#
+....#.##.#.#####....#...
+..##.##.###.....#.##..#.
+#...#...###..####....##.
+.#.##...#.##.#.#.###...#
+#.###.#..####...##..#...
+#.###...#.##...#.######.
+.###.###.#######..#####.
+..##.#..#..#.#######.###
+#.#..##.########..#..##.
+#.#####..#.#...##..#....
+#....##..#.#########..##
+#...#.....#..##...###.##
+#..###....##.#...##.##.#"""
+
+#print(count_dragons(dragon_sample, dragon_mask))
+
+
+# underperforming - not quite matching the dragon sample with my own stuff
