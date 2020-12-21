@@ -218,7 +218,7 @@ def completed_board(board, remaining_tiles):
     print(f"Nothing found , {len(remaining_tiles)} left: {remaining_tiles}")
     return None
     
-tiles = [Tile(tilestr) for tilestr in open("inputs/day20.sample").read().split("\n\n")]
+tiles = [Tile(tilestr) for tilestr in open("inputs/day20").read().split("\n\n")]
 
 for tile in tiles:
     print ("Tile", tile.id, tile.permutations())
