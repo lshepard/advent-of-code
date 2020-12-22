@@ -2,7 +2,7 @@ import sys
 import re
 import math
 import fileinput
-SQUARE_SIZE=3
+SQUARE_SIZE=12
 n_tile = 0
 
 class Board():
@@ -67,7 +67,7 @@ class Board():
                         b = (j + y_offset)*8 + y
 #                        print(f"ij({i},{j}) ab({a},{b}) Setting {x} + {x_offset}, {y} + {y_offset} to {c}")
                         newlines[b][a] = c
-#                print( f"\nTile {tile['tile'].id}\n" + "\n".join(["".join(line) for line in lines]))
+                print( f"\nTile {tile['tile'].id}\n" + "\n".join(["".join(line) for line in lines]))
         
         return "\n".join(["".join(line) for line in newlines])
                         
@@ -218,8 +218,8 @@ class Tile():
                 if permutation == edges:
                     return (n_rotate, n_flip)
 
-    def rotate(self, tile):
-        newt = [ tile[10-j,i] for i in range(10) for j in range(10) ]
+#    def rotate(self, tile):
+#        newt = [ tile[10-j,i] for i in range(10) for j in range(10) ]
 
     def inner_repr(self, permutation):
         """Returns how the inside of the tile looks for a given permutation"""
@@ -227,23 +227,23 @@ class Tile():
         global n_tile
         n_tile += 1
         n_tile_ch = chr(n_tile + 65)
-#        print(f"{n_rotate} rotations and {n_flip} flip repr for {self}")
+        print(f"{n_rotate} rotations and {n_flip} flip repr for {self}")
         lines = [list(r) for r in self.tilestr.split("\n")[1:]]
 #        print(lines, len(lines))
 
         def r(i,j):
-            ret=lines[9-j][i]
+            ret=lines[9-i][j]
 #            print("rotating", i,j,ret,"to",9-j,i)
 #            return n_tile_ch
             return ret
         def f(i,j):
-            ret= lines[9-i][j]
+            ret= lines[9-j][i]
 #            print("flipping",i,j,ret,"to",i,9-j)
             return ret
         for z in range(n_rotate):
-            lines =  [ [r(i,j) for j in range(10)] for i in range(10) ]
+            lines =  [ [r(i,j) for i in range(10)] for j in range(10) ]
         if n_flip:
-            lines =  [ [f(i,j) for j in range(10)] for i in range(10) ]
+            lines =  [ [f(i,j) for i in range(10)] for j in range(10) ]
 
         base_c = 96 if n_tile % 2 == 0  else 64
 #        return [[chr(base_c+i+j+n_tile) for i in range(1,9)] for j,line in enumerate(lines[1:9])]
@@ -297,17 +297,12 @@ def completed_board(board, remaining_tiles):
             # if this doesn't hit, try the next open space
     return None
     
-tiles = [Tile(tilestr) for tilestr in open("inputs/day20.sample").read().split("\n\n")]
+tiles = [Tile(tilestr) for tilestr in open("inputs/day20").read().split("\n\n")]
 
 
 final = solve_puzzle(tiles)
 
 im = final.image_list()
-
-dragon_mask = """
-                  # 
-#    ##    ##    ###
- #  #  #  #  #  #"""
 
 
 
@@ -323,6 +318,8 @@ def count_dragons(strboard):
     replace = r"O\1O\2OO\3OO\4OOO\5O\6O\7O\8O\9O\10O"
 
     processed, num_dragons = re.subn(mask, replace, strboard)
+    with open("day20.output.image","w") as f:
+        f.write(processed)
     
     roughness = processed.count("#")
     
@@ -331,8 +328,6 @@ def count_dragons(strboard):
    
 
 
-with open("day20.output.image","w") as f:
-    f.write(im)
 
 
 # just need to rotate and flip it several times
