@@ -207,7 +207,15 @@ class Tile():
         print("All permutations",perms)
         for n_rotate in range(4):
             for n_flip in [0, 1]:
-                if permutation == perms[(n_rotate * 2 + n_flip - 2) % 8]:
+                edges = [self.edges[(i + n_rotate) % len(self.edges)] for i in range(len(self.edges))]
+
+                if n_flip:
+                    edges = [ flip(edges[2]),
+                              flip(edges[1]),
+                              flip(edges[0]),
+                              flip(edges[3]) ]
+                
+                if permutation == edges:
                     return (n_rotate, n_flip)
 
     def rotate(self, tile):
@@ -224,12 +232,14 @@ class Tile():
 #        print(lines, len(lines))
 
         def r(i,j):
-#            print(i,j)
+            ret=lines[9-j][i]
+#            print("rotating", i,j,ret,"to",9-j,i)
 #            return n_tile_ch
-            return lines[9-j][i]
+            return ret
         def f(i,j):
-#            print(i,j)
-            return lines[i][9-j]
+            ret= lines[9-i][j]
+#            print("flipping",i,j,ret,"to",i,9-j)
+            return ret
         for z in range(n_rotate):
             lines =  [ [r(i,j) for j in range(10)] for i in range(10) ]
         if n_flip:
@@ -403,6 +413,5 @@ dragon_sample = """.####...#####..#...###..
 #..###....##.#...##.##.#"""
 
 #print(count_dragons(dragon_sample, dragon_mask))
-
 
 # underperforming - not quite matching the dragon sample with my own stuff
