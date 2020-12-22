@@ -1,3 +1,4 @@
+import re
 import math
 import fileinput
 SQUARE_SIZE=3
@@ -65,7 +66,7 @@ class Board():
                         b = (j + y_offset)*8 + y
 #                        print(f"ij({i},{j}) ab({a},{b}) Setting {x} + {x_offset}, {y} + {y_offset} to {c}")
                         newlines[b][a] = c
-                print( f"\nTile {tile['tile'].id}\n" + "\n".join(["".join(line) for line in lines]))
+#                print( f"\nTile {tile['tile'].id}\n" + "\n".join(["".join(line) for line in lines]))
         
         return "\n".join(["".join(line) for line in newlines])
                         
@@ -203,8 +204,6 @@ class Tile():
     def get_rotate_flip_counts(self, permutation):
         """Returns how many times rotation and flip were done for that permuatation"""
         perms = self.permutations()
-        print("Desired permutation",permutation)
-        print("All permutations",perms)
         for n_rotate in range(4):
             for n_flip in [0, 1]:
                 edges = [self.edges[(i + n_rotate) % len(self.edges)] for i in range(len(self.edges))]
@@ -227,7 +226,7 @@ class Tile():
         global n_tile
         n_tile += 1
         n_tile_ch = chr(n_tile + 65)
-        print(f"{n_rotate} rotations and {n_flip} flip repr for {self}")
+#        print(f"{n_rotate} rotations and {n_flip} flip repr for {self}")
         lines = [list(r) for r in self.tilestr.split("\n")[1:]]
 #        print(lines, len(lines))
 
@@ -304,18 +303,29 @@ final = solve_puzzle(tiles)
 
 im = final.image_list()
 
-dragon_mask = """                  # 
+dragon_mask = """
+                  # 
 #    ##    ##    ###
  #  #  #  #  #  #"""
 
+
+
 # i have the image - let's rotate and flip it a few times
-def count_dragons(lines, mask):
+def count_dragons(strboard):
     # check for each to see if the mask fits
     # i'm sure there's a better way to do this but ...
 
-    
+    # wondering if i can just use a regex here ...
+    line_length=str(SQUARE_LEN-20+1)
+    print(line_length)
+    mask = re.compile("#(.{"+line_length+"})#(....)##(....)##(....)###(.{"+line_length+"}.)#(..)#(..)#(..)#(..)#(..)#", \
+                      re.MULTILINE | re.DOTALL)
+    replace = r"O\1O\2OO\3OO\4OOO\5O\6O\7O\8O\9O\10O"
 
-    n = 0
+    processed, num_dragons = re.subn(mask, replace, strboard)
+    print(processed)
+    
+    return num_dragons
     
     for j, row in enumerate(lines):
         for i, c in enumerate(row):
@@ -336,7 +346,7 @@ def count_dragons(lines, mask):
                             break
             if not notfound:
                 n += 1
-                print("Dragon found!")
+                print(f"Dragon found! at {i,j}")
     return n
 
    
@@ -351,8 +361,8 @@ with open("day20.output.image","w") as f:
 lines = [list(row) for row in im.split("\n")]
 SQUARE_LEN=SQUARE_SIZE*8
 
-for n_rotations in range(4):
-    for to_flip in (False, True):
+for n_rotations in [1]: # range(4):
+    for to_flip in [True]: #(False, True):
 
         print(f"rotate {n_rotations} times and flip {to_flip}")
         
@@ -365,21 +375,22 @@ for n_rotations in range(4):
 #            print("flip",(i,j)," and ",SQUARE_LEN-1-j)
             return newlines[i][SQUARE_LEN-1-j]
 
-        print("---\n   " + "\n   ".join(["".join(line) for line in newlines]))
+#        print("---\n   " + "\n   ".join(["".join(line) for line in newlines]))
 
         for n in range(n_rotations): # rotate this number
             newlines = [ [r(i,j) for j in range(SQUARE_LEN)] for i in range(SQUARE_LEN) ]
-            print(f"rotation {n}")
-            print("---\n   " + "\n   ".join(["".join(line) for line in newlines]))
+#            print(f"rotation {n}")
+#            print("---\n   " + "\n   ".join(["".join(line) for line in newlines]))
 
         if to_flip:
-            print("flip")
+#            print("flip")
             newlines = [ [f(i,j) for j in range(SQUARE_LEN)] for i in range(SQUARE_LEN) ]
-            print("---\n   " + "\n   ".join(["".join(line) for line in newlines]))
+#            print("---\n   " + "\n   ".join(["".join(line) for line in newlines]))
 
-        print("\n".join(["".join(line) for line in newlines]))
+        strboard = "\n".join(["".join(line) for line in newlines])
+        print(strboard)
 
-        n_dragons = count_dragons(newlines, dragon_mask)
+        n_dragons = count_dragons(strboard)
         print(n_dragons)
         if n_dragons > 0:
 
