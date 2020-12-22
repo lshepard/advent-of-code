@@ -207,7 +207,7 @@ class Tile():
         print("All permutations",perms)
         for n_rotate in range(4):
             for n_flip in [0, 1]:
-                if permutation == perms[n_rotate * 2 + n_flip]:
+                if permutation == perms[(n_rotate * 2 + n_flip - 2) % 8]:
                     return (n_rotate, n_flip)
 
     def rotate(self, tile):
