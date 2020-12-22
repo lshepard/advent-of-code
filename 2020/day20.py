@@ -1,3 +1,4 @@
+import sys
 import re
 import math
 import fileinput
@@ -317,37 +318,15 @@ def count_dragons(strboard):
 
     # wondering if i can just use a regex here ...
     line_length=str(SQUARE_LEN-20+1)
-    print(line_length)
-    mask = re.compile("#(.{"+line_length+"})#(....)##(....)##(....)###(.{"+line_length+"}.)#(..)#(..)#(..)#(..)#(..)#", \
+    mask = re.compile("#(..{"+line_length+"})#(....)##(....)##(....)###(.{"+line_length+"}.)#(..)#(..)#(..)#(..)#(..)#", \
                       re.MULTILINE | re.DOTALL)
     replace = r"O\1O\2OO\3OO\4OOO\5O\6O\7O\8O\9O\10O"
 
     processed, num_dragons = re.subn(mask, replace, strboard)
-    print(processed)
     
-    return num_dragons
+    roughness = processed.count("#")
     
-    for j, row in enumerate(lines):
-        for i, c in enumerate(row):
-#            print(f"testing at {(i,j)}")
-            # check if the dragon appears starting at this spot
-            notfound = False
-            for my, mrow in enumerate(mask.split("\n")):
-                if notfound:
-                    break
-                for mx, ch in enumerate(list(mrow)):
-#                    print(f"    check {(mx,my)} = {ch} against {lines[my][mx]}")
-                    if ch == "#": # only test if this is present
-                        test_y = j+my
-                        test_x = i+mx
-#                        print(f"testing {test_y} {test_x}")
-                        if (test_y >= len(lines)) or (test_x >= len(lines[0])) or (lines[test_y][test_x] != "#"):
-                            notfound = True
-                            break
-            if not notfound:
-                n += 1
-                print(f"Dragon found! at {i,j}")
-    return n
+    return num_dragons, roughness
 
    
 
@@ -356,13 +335,12 @@ with open("day20.output.image","w") as f:
     f.write(im)
 
 
-
 # just need to rotate and flip it several times
 lines = [list(row) for row in im.split("\n")]
 SQUARE_LEN=SQUARE_SIZE*8
 
-for n_rotations in [1]: # range(4):
-    for to_flip in [True]: #(False, True):
+for n_rotations in range(4):
+    for to_flip in (False, True):
 
         print(f"rotate {n_rotations} times and flip {to_flip}")
         
@@ -390,11 +368,11 @@ for n_rotations in [1]: # range(4):
         strboard = "\n".join(["".join(line) for line in newlines])
         print(strboard)
 
-        n_dragons = count_dragons(strboard)
-        print(n_dragons)
+        n_dragons, roughness = count_dragons(strboard)
         if n_dragons > 0:
-
             print("n dragons ", n_dragons)
+            print("roughness", roughness)
+            sys.exit()
             # todo: calculte the answer
 
 
