@@ -199,7 +199,7 @@ def flip(stringblock):
     return "\n".join(["".join([ lines[i][length-1-j] for j in range(length)]) for i in range(length) ])
 
 
-def count_dragons(stringblock):
+def count_dragons_regex(stringblock):
     """Takes a block of characters and counts how many dragons appear."""
     length = len(stringblock.split("\n"))
     line_length=str(length-20+1)
@@ -215,21 +215,50 @@ def count_dragons(stringblock):
     
     return num_dragons, roughness
 
+
+def count_dragons_block(stringblock):
+    """
+                  # 
+#    ##    ##    ###
+ #  #  #  #  #  #   
+"""
+    needed_tiles = [
+        (0,18),
+        (1,0), (1,5), (1,6), (1,11), (1,12), (1,17), (1,18), (1,19),
+        (2,1), (2,4), (2,7), (2,10), (2,13), (2,16)
+        ]
+                
+    # look at each block of 3x20
+    lines = stringblock.split("\n")
+    length = len(lines)
+    for j in range(length - 3):
+        for i in range(length - 20):
+            lineblock = [line[i:i+21] for line in lines[j:j+3]]
+            print(i,j)
+            print("\n".join(lineblock))
+            if all([lineblock[y][x] == "#" for y,x in needed_tiles]):
+                print("found at ", (i,j))
+
 tiles = read_input()
 tiles = orient_correctly(tiles)
-im = tiles_str_compact(tiles).strip()
-print("im length",len(im.split("\n")))
-print("im row length",len(im.split("\n")[0]))
 
-#result = count_dragons(im)
-#print(result)
-for rotations in range(4):
-    for flips in range(2):
-        tstring = im
-        for r in range(rotations):
-            tstring = rotate(tstring)
-        if flips == 1:
-            tstring = flip(tstring)
+# let's look at the tiles_str oriented correctly
+t = tiles_str(tiles).strip()
+t = rotate(t)
+t = rotate(t)
+t = rotate(t)
+t = flip(t)
+print(t)
 
-        num_dragons, roughness = count_dragons(tstring)
-        print(f"{rotations} rotations, {flips} flips, yields {num_dragons} dragons {roughness} roughness")
+s = tiles_str_compact(tiles).strip()
+# i believe it's just the one orientation that has them - ignore the others
+s = rotate(s)
+s = rotate(s)
+s = rotate(s)
+s = flip(s)
+
+
+num_dragons, roughness = count_dragons_regex(s)
+print(f" yields {num_dragons} dragons {roughness} roughness")
+
+print(count_dragons_block(s))
