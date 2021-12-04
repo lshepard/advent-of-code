@@ -35,17 +35,19 @@ def main(lines):
         print(board_lines)
         boards.append(BingoBoard(board_lines))
 
-    print(boards)
-
     for i,num in enumerate(random_ordering):
+        print("Playing " + str(num))
         for board in boards:
             res = board.play(random_ordering[:i+1])
             if res:
-                print("Winner!")
-                print(board)
-                score = board.score()
-                print(f"score {score} num {num}")
-                return score * num
+                print("Board won")
+                boards.remove(board)
+                if len(boards) == 0:
+                    print("Winner!")
+                    print(board)
+                    score = board.score()
+                    print(f"score {score} num {num}")
+                    return score * num
 
 class BingoBoard():
     def __init__(self, bingo_lines):
