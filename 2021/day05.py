@@ -41,7 +41,23 @@ def main(lines):
 
             for i in range(int(x1),int(x2)+1):
                 cell = (i, int(y1))
-         #       print(cell)
+                print(cell)
+                cells[cell] = cells.get(cell, set())
+                cells[cell].add(line)
+
+        # check diagonals
+        if abs(int(y2)- int(y1)) == abs(int(x2)- int(x1)):
+            if int(x2) < int(x1):
+                x1, x2 = x2, x1
+                y1, y2 = y2, y1
+
+            y_inc = 1 if int(y1) < int(y2) else -1
+
+            j = int(y1) - y_inc
+            for i in range(int(x1),int(x2)+1):
+                j = j + y_inc
+                cell = (i, j)
+                print(cell)
                 cells[cell] = cells.get(cell, set())
                 cells[cell].add(line)
 
