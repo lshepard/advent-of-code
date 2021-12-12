@@ -41,6 +41,16 @@ def part1(cells, num_steps):
 
     return total_flashes
 
+def part2(cells, num_steps):
+    total_flashes = 0
+    for i in range(num_steps):
+#        print(f"cells {cells}")
+        cells, num_flashes = flash(cells)
+        if num_flashes == len(cells):
+            return i + 1
+
+    return None
+
 def flash(cells):
     """Given a set of cells, return the same number"""
     # first, increment by 1
@@ -98,7 +108,8 @@ t = create_cells("""11111
 
 #print(part1(t, 2))
 
-print(part1(create_cells(test),100))
+#print(part1(create_cells(test),100))
+print(part2(create_cells(test),200))
 #print(part1(create_cells(test)))
 #print(part1(test))
 
@@ -112,4 +123,5 @@ puzzle_input = """8826876714
 1517254266
 2621124761
 3473331514""".split("\n")
-print(part1(create_cells(puzzle_input),100))
+#print(part1(create_cells(puzzle_input),100))
+print(part2(create_cells(puzzle_input),5000))
