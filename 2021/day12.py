@@ -1,4 +1,5 @@
 from collections import defaultdict
+from collections import Counter
 
 import math
 import fileinput
@@ -69,12 +70,19 @@ def parse_graph(lines):
 
 def dfs(graph, node, path_so_far=[]):
     """Depth first traversal, short-circuit if visit lowercase node twice"""
-    print(f"dfs {node} path so far {path_so_far}")
+    #print(f"dfs {node} path so far {path_so_far}")
 
     if node == "end":
         return [ path_so_far  + ["end"] ]
-    elif node in path_so_far and (node.lower() == node):
-        # lowercase cant be visited twice
+    if node == "start" and node in path_so_far:
+        # cant visit start again
+        return []
+    elif ((node.lower() == node) and
+          (node in path_so_far) and
+          # check if any other small node has been visited more than once
+          max([v for k, v in Counter(path_so_far).items() if k.lower() == k]) > 1):
+        # lowercase cant be visited --twice--
+        #print(f"skipping lowercase {node} that appears too many ")
         return []
     else:
         next_nodes = graph.get(node,set())
@@ -89,7 +97,10 @@ def part1(inp):
     paths = dfs(g, "start")
     return paths
 
-print(len(part1(test)))
-print(len(part1(big_test)))
+paths = part1(test)
+print(len(paths))
+for path in paths:
+    print(",".join(path))
+#print(len(part1(big_test)))
 print(len(part1(real_input)))
     
