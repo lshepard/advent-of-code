@@ -3,6 +3,9 @@ import fileinput
 
 lines = list(fileinput.input())
 
+# A/X = rock, B/Y = paper, C/Z = scissors
+# rock = 1 point, paper = 2, scissors = 3
+# win = 6, lose = 0, tie = 3
 scores = {
     "A X": 1 + 3,
     "B X": 1 + 0,
