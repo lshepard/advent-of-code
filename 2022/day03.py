@@ -1,5 +1,6 @@
 import re
 import fileinput
+import numpy as np
 
 lines = list(fileinput.input())
 
@@ -29,12 +30,41 @@ def priority(t):
         a = o - 97 + 1
     return a
 
-total = 0
-for line in lines:
-    t = shared_type_in_row(line)
-    p = priority(t)
-    print(f"{p} ({t})")
-    total += p
+def pt1():
 
-print(total)
+    total = 0
+    for line in lines:
+        t = shared_type_in_row(line)
+        p = priority(t)
+        print(f"{p} ({t})")
+        total += p
+    return total
+
+def shared_type_in_group(rows):
+    """Given a line from the input, returns the letter of the shared type"""
+    s = None
+    for row in rows:
+        rset = set(list(row.strip()))
+        if s is None:
+            s = rset
+        else:
+            s = s.intersection(rset)
+            
+    if len(s) != 1:
+        raise Exception(f"more or less than 1 intersection in {row}. inter = {s}")
+
+    return s.pop()
+
+        
+def pt2():
+    groups = np.array_split(lines, len(lines) / 3)
+    total = 0
+    for group in groups:
+        t = shared_type_in_group(group)
+        p = priority(t)
+        print(f"{p} ({t})")
+        total += p
+    return total
+
+print(pt2())
     
