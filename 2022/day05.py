@@ -32,8 +32,9 @@ def parse_stacks(initial):
     return stacks
 
 
-def make_moves(stacks, moves):
-    """Make all the given moves to the series of stacks"""
+def make_moves(stacks, moves, keep_order):
+    """Make all the given moves to the series of stacks
+    keep_order distinguishes part 1 from part 2"""
 
     for move in moves:
 
@@ -43,11 +44,14 @@ def make_moves(stacks, moves):
             frm = int(matches[2])
             to = int(matches[3])
 
-            
-            # execute the move
-            for i in range(num):
-                v = stacks[frm].pop()
-                stacks[to].append(v)
+            if keep_order:
+                vals = stacks[frm][-num:]
+                stacks[frm] = stacks[frm][:-num]
+                stacks[to] += vals
+            else:
+                for i in range(num):
+                    v = stacks[frm].pop()
+                    stacks[to].append(v)
 
     return stacks
 
@@ -57,5 +61,6 @@ def answer(stacks):
     return "".join([stack[-1]  for stack in stacks if len(stack) > 0])
 
 stacks = parse_stacks(initial)
-stacks = make_moves(stacks, instructions)
+stacks = make_moves(stacks, instructions, keep_order=True)
+
 print(answer(stacks))
