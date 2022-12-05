@@ -11,8 +11,6 @@ initial = lines[:len(lines) - len(instructions) - 1]
 def parse_stacks(initial):
     """Create the data structure - a list of lists, to be treated as stacks"""
     num_stacks = int(int(len(initial[0])) / 4)
-    print(f"initial: {initial}, {len(initial[0])}")
-    print(f"num_stacks : {num_stacks}")
     stacks = [None] * (num_stacks + 1) # 0'th will be empty
     for i in range(len((stacks))):
         stacks[i] = list()
@@ -20,14 +18,8 @@ def parse_stacks(initial):
     for line in initial:
         chunks = [line[i:i+4] for i in range(0, len(line), 4)]
         for i, item in enumerate(chunks):
-            print(f"'{item}'")
             val = item[1] # 2nd character is the value
-            if val.isnumeric():
-                pass
-            elif val != " ":
-                print(f"appending {val}")
-                print(f"stacks {stacks}")
-                
+            if not val.isnumeric() and val != " ":
                 stacks[i+1].insert(0,val)
     return stacks
 
@@ -60,7 +52,12 @@ def answer(stacks):
 
     return "".join([stack[-1]  for stack in stacks if len(stack) > 0])
 
+
+stacks = parse_stacks(initial)
+stacks = make_moves(stacks, instructions, keep_order=False)
+print(f"pt1: {answer(stacks)}")
+
+
 stacks = parse_stacks(initial)
 stacks = make_moves(stacks, instructions, keep_order=True)
-
-print(answer(stacks))
+print(f"pt2: {answer(stacks)}")
