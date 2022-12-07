@@ -74,8 +74,19 @@ def part1_total(sizes):
     """find all of the directories with a total size of at
         most 100000, then calculate the sum of their total sizes"""
     s = [v for k,v in sizes.items() if v <= 100000]
-    print(s)
     return sum(s)
+
+def part2_total(sizes):
+    """Find the smallest directory that, if deleted, would free up 
+    enough space on the filesystem to run the update.
+    The total disk space available to the filesystem is 70000000. 
+    To run the update, you need unused space of at least 30000000."""
+    total = sizes[""]
+    unused = 70000000 - total
+    print(f"unused {unused}")
+    needed = 30000000 - unused
+    print(f"needed {needed}")
+    return min([v for k,v in sizes.items() if v >= needed])
 
 def print_files(files):
     for f, size in files.items():
@@ -87,4 +98,6 @@ sizes = directory_sizes(files)
     
 for s, d in (sorted([(s, d) for d, s in sizes.items()])):
     print(f"{s}\t{d}")
-print(part1_total(sizes))
+print(f"pt1: {part1_total(sizes)}")
+
+print(f"pt2: {part2_total(sizes)}")
