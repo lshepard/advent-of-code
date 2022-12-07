@@ -42,12 +42,9 @@ def parse_lines_for_files(lines):
     return files
         
 def directory_sizes(files):
-
     # iterate through each file, adding its size to
     # the total for all the directories it contains
-
     dir_sizes = {}
-
     for name, size in files.items():
         # f like "/a/b/blah"
         for d in directory_names(name):
