@@ -13,7 +13,7 @@ lines = list(fileinput.input())
 def parse_lines_for_files(lines):
     files = {}
     path = []
-
+    
     for line in lines:
         line = line.strip()
         if (line == "$ cd .."):
@@ -58,10 +58,17 @@ def directory_sizes(files):
     return dir_sizes
 
 def directory_names(file_name):
-    """All the directories that contain this file"""
+    """All the directories that contain this file. let's do fully qualified"""
 
-    parts = file_name.split("/")
-    return parts[:-1]
+    start = 0
+    dirs = []
+    while True:
+        i = file_name.find("/", start)
+        if i == -1:
+            break
+        dirs.append(file_name[:i])
+        start = i+1
+    return dirs
 
 def part1_total(sizes):
     """find all of the directories with a total size of at
@@ -77,5 +84,7 @@ def print_files(files):
 files = parse_lines_for_files(lines)
 print_files(files)
 sizes = directory_sizes(files)
-print(sizes)
+    
+for s, d in (sorted([(s, d) for d, s in sizes.items()])):
+    print(f"{s}\t{d}")
 print(part1_total(sizes))
