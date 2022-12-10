@@ -27,11 +27,21 @@ for i, line in enumerate(lines):
         strengths.append(X) # do this before
         X += val
 
+# now go through teh strengths
 
-# get the answer
-print(strengths)
-a = [ strengths[i-1]*i if i<len(strengths) else X for i in desired_strengths ]
+cycle = 0
+val = ""
+for i in range(6):
+    for j in range(40):
 
-print(a)
+        current = strengths[cycle]
+        lit = (j in [current-1, current, current+1])
 
-print(sum(a))
+        if lit:
+            val += "#"
+        else:
+            val += "."
+        cycle += 1
+    val += "\n"
+print(val)
+            
