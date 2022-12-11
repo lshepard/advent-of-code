@@ -52,16 +52,19 @@ def parse_input(lines):
             
 
 def do_round(monkeys):
+
+    lc = math.prod(set([monkey["test"] for monkey in monkeys]))
+    #print(f"LCD {lc}")
     """Runs a single round, returns the new monkeys"""
-    print(f"Starting round with {len(monkeys)} monkeys...")
+#    print(f"Starting round with {len(monkeys)} monkeys...")
     for mnum in range(len(monkeys)):
         monkey = monkeys[mnum]
         #print(f"Monkey {mnum}:")
 
         for item in monkey["items"]:
             #print(f"  Monkey inpsects an item with worry level {item}")
-            new = mod_worry(monkey, item)
-            new = int(new / 3)
+            new = mod_worry(monkey, item) % lc
+#            new = int(new / 3) # no longer do this
             is_divisible = (new % monkey["test"] == 0)
             target = monkey["throwtrue"] if is_divisible else monkey["throwfalse"]
             #print(f"  Item with worry level {new} is throw to monkey {target}")
@@ -70,7 +73,6 @@ def do_round(monkeys):
         monkey["items"] = []
         monkeys[mnum] = monkey
     return monkeys
-            
 
 def mod_worry(monkey, item):
     o = monkey["op"]
@@ -88,13 +90,16 @@ def mod_worry(monkey, item):
         return item * item
     else:
         raise Exception(f"bad op code {monkey} {item}")
-    
+
 
 monkeys = parse_input(lines)
-for i in range(20):
+for i in range(10000):
+    if i % 1000 == 0:
+        item_counts = [monkey["item_count"] for monkey in monkeys]
+        print(f"After round {i}")
+        print(item_counts)
     monkeys = do_round(monkeys)
 
 item_counts = [monkey["item_count"] for monkey in monkeys]
-
 s = sorted(item_counts, reverse=True)
 print(s[0] * s[1])
