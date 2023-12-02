@@ -1,3 +1,4 @@
+import math
 import re
 import fileinput
 
@@ -34,8 +35,29 @@ def part1():
 
     print(n)
 
+
 def possible(set, comparison):
     """Tells whether the set could work. comparision as form {"green": 2, "red": 3, "blue": 6}"""
     return all([quantity <= comparison[color] for quantity, color in set])
 
-part1()
+def min_colors_power(set):
+    mins = {}
+
+    for (quantity,color) in set:
+        mins[color] = max(mins.get(color,0), quantity)
+    return math.prod(mins.values())
+
+def part2():
+    """ what is the fewest # of cubes of each color that would have made the game possible? """
+    lines = list(fileinput.input())
+    
+    n = 0
+    for line in lines:
+        game_id, set_results = parse(line)
+        p = min_colors_power(set_results)
+        print(f"Game {game_id} power {p}")
+        n += p
+
+    print(n)
+
+part2()
