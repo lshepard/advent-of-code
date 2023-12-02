@@ -1,0 +1,6 @@
+#!/bin/bash
+
+SESSION=53616c7465645f5fa40ca50666ccb3a9fe520408495f4a892f19f2b3cebfb5848353518d132a91d3863df06c4afd8444dcc89e9d3384ed7a884e9abfbb4df1c1
+DAY=`printf "%02d\n" $1`
+curl -o /Users/lukeshepard/code/advent-of-code/2023/day$DAY.input --cookie "session=$SESSION" https://adventofcode.com/2023/day/$1/input
+printf "Downloaded input for day $DAY"
